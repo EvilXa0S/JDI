@@ -35,6 +35,7 @@ import static com.epam.commons.LinqUtils.firstIndex;
 import static com.epam.jdi.uitests.core.settings.JDISettings.exception;
 import static com.epam.jdi.uitests.web.selenium.elements.pageobjects.annotations.WebAnnotationsUtil.findByToBy;
 import static com.epam.jdi.uitests.web.selenium.elements.pageobjects.annotations.objects.FillFromAnnotationRules.fieldHasAnnotation;
+import static org.xbill.DNS.Name.root;
 
 /**
  * Created by roman.i on 03.10.2014.
@@ -60,24 +61,15 @@ public class Selector<TEnum extends Enum> extends BaseSelector<TEnum> implements
     }
 
     public Selector<TEnum> setUp(JSelector jSelector) {
-        By root = findByToBy(jSelector.root());
-        By value = findByToBy(jSelector.value());
-        By list = findByToBy(jSelector.list());
-        if (root == null)
-            root = findByToBy(jSelector.jRoot());
-        if (value == null)
-            value = findByToBy(jSelector.jValue());
-        if (list == null)
-            list = findByToBy(jSelector.jList());
+        By namesLocatorTemplate = findByToBy(jSelector.namesLocatorTemplate());
+        By namesLocator = findByToBy(jSelector.namesLocator());
+        if (namesLocatorTemplate == null)
+            namesLocatorTemplate = findByToBy(jSelector.jNamesLocatorTemplate());
+        if (namesLocator == null)
+            namesLocator = findByToBy(jSelector.jNamesLocator());
 
-        if (root != null) {
-            Element el = new Element(root);
-            el.setParent(getParent());
-            setParent(el);
-            setAvatar(root);
-        }
-        if (list != null)
-            this.allLabels = new GetElementType(list, this);
+
+
         return this;
     }
 

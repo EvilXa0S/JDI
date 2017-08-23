@@ -11,10 +11,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.FIELD})
 public @interface  JSelector {
-    FindBy root() default @FindBy();
-    FindBy value() default @FindBy();
-    FindBy list() default @FindBy();
-    JFindBy jRoot() default @JFindBy();
-    JFindBy jValue() default @JFindBy();
-    JFindBy jList() default @JFindBy();
+    FindBy namesLocatorTemplate() default @FindBy();
+    FindBy namesLocator() default @FindBy();
+    JFindBy jNamesLocatorTemplate() default @JFindBy();
+    JFindBy jNamesLocator() default @JFindBy();
 }
