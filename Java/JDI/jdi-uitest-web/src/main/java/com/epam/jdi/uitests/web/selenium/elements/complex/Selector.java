@@ -19,16 +19,23 @@ package com.epam.jdi.uitests.web.selenium.elements.complex;
 
 
 import com.epam.jdi.uitests.core.interfaces.complex.ISelector;
+import com.epam.jdi.uitests.web.selenium.elements.GetElementType;
+import com.epam.jdi.uitests.web.selenium.elements.base.BaseElement;
 import com.epam.jdi.uitests.web.selenium.elements.base.Element;
+import com.epam.jdi.uitests.web.selenium.elements.pageobjects.annotations.objects.JSelector;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static com.epam.commons.EnumUtils.getEnumValue;
 import static com.epam.commons.LinqUtils.first;
 import static com.epam.commons.LinqUtils.firstIndex;
 import static com.epam.jdi.uitests.core.settings.JDISettings.exception;
+import static com.epam.jdi.uitests.web.selenium.elements.pageobjects.annotations.WebAnnotationsUtil.findByToBy;
+import static com.epam.jdi.uitests.web.selenium.elements.pageobjects.annotations.objects.FillFromAnnotationRules.fieldHasAnnotation;
+import static org.xbill.DNS.Name.root;
 
 /**
  * Created by roman.i on 03.10.2014.
@@ -46,6 +53,26 @@ public class Selector<TEnum extends Enum> extends BaseSelector<TEnum> implements
     public Selector(By optionsNamesLocatorTemplate, By allOptionsNamesLocator) {
         super(optionsNamesLocatorTemplate, allOptionsNamesLocator);
     }
+
+    public static void setUp(BaseElement el, Field field) {
+        if (!fieldHasAnnotation(field, JSelector.class, ISelector.class))
+            return;
+        ((Selector) el).setUp(field.getAnnotation(JSelector.class));
+    }
+
+    public Selector<TEnum> setUp(JSelector jSelector) {
+        By namesLocatorTemplate = findByToBy(jSelector.namesLocatorTemplate());
+        By namesLocator = findByToBy(jSelector.namesLocator());
+        if (namesLocatorTemplate == null)
+            namesLocatorTemplate = findByToBy(jSelector.jNamesLocatorTemplate());
+        if (namesLocator == null)
+            namesLocator = findByToBy(jSelector.jNamesLocator());
+
+
+
+        return this;
+    }
+
 
     /**
      * @param name Specify name using string
