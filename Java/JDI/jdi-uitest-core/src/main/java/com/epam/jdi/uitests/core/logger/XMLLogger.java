@@ -1,6 +1,10 @@
 package com.epam.jdi.uitests.core.logger;
 
-import org.apache.log4j.Logger;
+import org.apache.log4j.*;
+
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Logger in XML format class.
@@ -8,9 +12,30 @@ import org.apache.log4j.Logger;
 public class XMLLogger {
 
     private Logger log;
+    private Map<Appender,Layout> layouts;
+    private Level logLevel;
 
     public XMLLogger(Class clazz) {
-        this.log = Logger.getLogger(clazz);
+        log = Logger.getLogger(clazz);
+        logLevel =Logger.getRootLogger().getLevel();
+        layouts = new HashMap<>();
+
+        Enumeration<Logger> loggers = LogManager.getCurrentLoggers();
+        for(Logger logger ; loggers.hasMoreElements();) {
+            logger = loggers.nextElement();
+
+            Enumeration<Appender> appenderEnumeration = logger.getAllAppenders();
+            for (Appender appender; appenderEnumeration.hasMoreElements(); ) {
+                appender = appenderEnumeration.nextElement();
+                layouts.put(appender, appender.getLayout());
+            }
+        }
+
+        Enumeration<Appender> appenderEnumeration = LogManager.getRootLogger().getAllAppenders();
+        for (Appender appender; appenderEnumeration.hasMoreElements(); ) {
+            appender = appenderEnumeration.nextElement();
+            layouts.put(appender, appender.getLayout());
+        }
     }
 
     /**
@@ -156,9 +181,14 @@ public class XMLLogger {
      * @param lambda Lambda expression without arguments which will be executed.
      */
     public void log (LogLevels logLevel, String message, ILambdaExpression lambda){
-        log.info("<" + logLevel.toString().toLowerCase() + ">" + message);
+        setOurLayout("%m");
+        writeLog(logLevel,"<" + logLevel.toString().toLowerCase() + ">");
+        setUserLayout();
+        writeLog(logLevel,message);
         lambda.doInternalAction();
-        log.info("</" + logLevel.toString().toLowerCase() + ">");
+        setOurLayout("%m%n");
+        writeLog(logLevel,"</" + logLevel.toString().toLowerCase() + ">");
+        setUserLayout();
     }
 
     /**
@@ -167,7 +197,66 @@ public class XMLLogger {
      * @param message Message to be shown in logging file.
      */
     public void log(LogLevels logLevel, String message) {
-        log.info("<" + logLevel.toString().toLowerCase() + ">" + message + "</" + logLevel.toString().toLowerCase() + ">");
+        setOurLayout("%m");
+        writeLog(logLevel,"<" + logLevel.toString().toLowerCase() + ">");
+        setUserLayout();
+        writeLog(logLevel,message);
+        setOurLayout("%m%n");
+        writeLog(logLevel,"</" + logLevel.toString().toLowerCase() + ">");
+        setUserLayout();
+    }
+
+    private void writeLog(LogLevels logLevel, String message){
+        switch(logLevel){
+            case ALL:
+                log.trace(message);
+                break;
+            case TRACE:
+                if(this.logLevel.toInt() <= Level.TRACE.toInt()){
+                    log.trace(message);
+                }
+                break;
+            case DEBUG:
+                if(this.logLevel.toInt() <= Level.DEBUG.toInt()){
+                    log.debug(message);
+                }
+                break;
+            case INFO:
+                if(this.logLevel.toInt() <= Level.INFO.toInt()){
+                    log.info(message);
+                }
+                break;
+            case WARNING:
+                if(this.logLevel.toInt() <= Level.WARN.toInt()){
+                    log.warn(message);
+                }
+                break;
+            case ERROR:
+                if(this.logLevel.toInt() <= Level.ERROR.toInt()){
+                    log.error(message);
+                }
+                break;
+            case FATAL:
+                if(this.logLevel.toInt() <= Level.FATAL.toInt()){
+                    log.fatal(message);
+                }
+                break;
+            case OFF:
+                log.fatal(message);
+                break;
+        }
+    }
+
+    private void setOurLayout(String pattern){
+        for (Appender appender: layouts.keySet()){
+            appender.setLayout(new PatternLayout(pattern));
+        }
+    }
+
+    private void setUserLayout(){
+        for(Map.Entry<Appender, Layout> entry: layouts.entrySet()){
+            entry.getKey().setLayout(entry.getValue());
+        }
     }
 }
 
@@ -176,19 +265,20 @@ public class XMLLogger {
  */
 class Test {
 
-    private XMLLogger xmlLogger = new XMLLogger(Test.class);
+    private static XMLLogger xmlLogger = new XMLLogger(Test.class);
 
     public static void main(String[] args) {
         Test test = new Test();
-
         test.method1();
     }
 
     void method1() {
+        xmlLogger.fatal("message1");
+        xmlLogger.error("message1");
+        xmlLogger.warn("message1");
         xmlLogger.info("message1");
-        xmlLogger.debug("message2");
-        xmlLogger.off("message3");
-        xmlLogger.all("message4");
+        xmlLogger.debug("message1");
+        xmlLogger.trace("message1");
         method2();
     }
 
@@ -204,3 +294,4 @@ class Test {
         xmlLogger.debug("message7");
     }
 }
+
