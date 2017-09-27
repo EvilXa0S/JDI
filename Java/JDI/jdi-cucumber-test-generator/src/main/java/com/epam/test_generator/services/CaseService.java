@@ -2,22 +2,31 @@ package com.epam.test_generator.services;
 
 import com.epam.test_generator.dao.interfaces.CaseDAO;
 import com.epam.test_generator.dao.interfaces.SuitDAO;
+import com.epam.test_generator.dao.interfaces.TagDAO;
 import com.epam.test_generator.dto.CaseDTO;
-import com.epam.test_generator.dto.DozerMapper;
 import com.epam.test_generator.entities.Case;
+import com.epam.test_generator.transformers.CaseTransformer;
 import com.epam.test_generator.entities.Suit;
-import java.util.ArrayList;
-import java.util.List;
+
+import com.epam.test_generator.entities.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Transactional
 @Service
 public class CaseService {
 
     @Autowired
-    private DozerMapper mapper;
+    private CaseTransformer caseTransformer;
 
     @Autowired
     private CaseDAO caseDAO;
@@ -25,31 +34,30 @@ public class CaseService {
     @Autowired
     private SuitDAO suitDAO;
 
+    @Autowired
+    private TagDAO tagDAO;
+
     public CaseDTO addCaseToSuit(CaseDTO cs, long suitId) {
-        Case caze = new Case();
+        Suit suit = suitDAO.getOne(suitId);
+        Case caze = caseTransformer.fromDto(cs);
 
-        mapper.map(cs, caze);
-        suitDAO.getOne(suitId).getCases().add(caze);
-        mapper.map(caseDAO.save(caze), cs);
+        mergeTags(caze);
 
-        return cs;
+        suit.getCases().add(caze);
+        suitDAO.save(suit);
+
+        return caseTransformer.toDto(caze);
     }
 
     public List<CaseDTO> getCasesBySuitId(long suitId) {
-        List<CaseDTO> listDTO = new ArrayList<>();
         List<Case> list = suitDAO.findOne(suitId).getCases();
 
-        mapper.map(list, listDTO);
-
-        return listDTO;
+        return caseTransformer.toDtoList(list);
     }
 
     public CaseDTO getCase(Long id) {
-        CaseDTO dto = new CaseDTO();
 
-        mapper.map(caseDAO.getOne(id), dto);
-
-        return dto;
+        return caseTransformer.toDto(caseDAO.getOne(id));
     }
 
     public void removeCase(long suitId, long caseId) {
@@ -67,13 +75,22 @@ public class CaseService {
         Suit suit = suitDAO.getOne(suitId);
         Case caze = suit.getCaseById(cs.getId());
 
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+        cs.setUpdateDate(formatter.format(Calendar.getInstance().getTime()));
+
         if (caze != null) {
             suit.getCases().remove(caze);
+
             caze.setSteps(new ArrayList<>());
-            mapper.map(cs, caze);
+            caze.setTags(new HashSet<>());
+
+            caze = caseTransformer.fromDto(cs);
+
+            mergeTags(caze);
+
             suit.getCases().add(caze);
             suitDAO.save(suit);
-            mapper.map(caze, cs);
+            cs = caseTransformer.toDto(caze);
         }
         return cs;
     }
@@ -90,5 +107,17 @@ public class CaseService {
         });
 
         suitDAO.save(suit);
+    }
+
+    private void mergeTags(Case caze){
+        Set<Tag> tags = new HashSet<>();
+        if(caze.getTags() != null) {
+            for (Tag tag : caze.getTags()) {
+                Tag tmp = tagDAO.findOne(Example.of(tag));
+                tag = (tmp == null) ? tag : tmp;
+                tags.add(tag);
+            }
+        }
+        caze.setTags(tags);
     }
 }
