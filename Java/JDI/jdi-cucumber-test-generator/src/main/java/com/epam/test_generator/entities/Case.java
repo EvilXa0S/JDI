@@ -1,96 +1,117 @@
 package com.epam.test_generator.entities;
 
-
 import javax.persistence.*;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Case implements Serializable{
+
     @Id
     @GeneratedValue
     private Long id;
-  
-    private CaseType type;
 
-    private String feature;
+    private String description;
 
-    //Описание сценария
-    private String scenario;
+    @OneToMany(cascade = {CascadeType.ALL})
+    private List<Step> steps;
 
-    @ManyToOne
-    private Suit suit;
+    private String creationDate;
 
-    public Case(Long id, String feature, String scenario, Suit suit) {
+    private String updateDate;
+
+    private Integer priority;
+
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    private Set<Tag> tags;
+
+    public Case(){
+        SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+        creationDate = formatter.format(Calendar.getInstance().getTime());
+        updateDate = formatter.format(Calendar.getInstance().getTime());
+    }
+
+    public Case(Long id, String description, List<Step> steps, Integer priority, Set<Tag> tags) {
         this.id = id;
-        this.feature = feature;
-        this.scenario = scenario;
-        this.suit = suit;
+        this.description = description;
+        this.steps = steps;
+        this.priority = priority;
+        this.tags = tags;
     }
 
     public Long getId() {
         return id;
     }
 
-    public CaseType getType() {
-        return type;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setType(CaseType type) {
-        this.type = type;
+    public String getDescription() {
+        return description;
     }
 
-    public Suit getSuit() {
-        return suit;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setSuit(Suit suit) {
-        this.suit = suit;
-    }
-
-    public String getFeature() {
-        return feature;
-    }
-
-    public void setFeature(String feature) {
-        this.feature = feature;
-    }
-
-    public String getScenario() {
-        return scenario;
-    }
-
-    public void setScenario(String scenario) {
-        this.scenario = scenario;
-    }
-
-    @Override
-    public int hashCode() {
-        return feature.hashCode() + 31 * scenario.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
+    public List<Step> getSteps() {
+        if (steps == null){
+            steps = new ArrayList<>();
         }
-
-        if (!(o instanceof Case)) {
-            return false;
-        } else {
-            String f = ((Case)o).getFeature();
-            String s = ((Case)o).getScenario();
-            if ( f.equals(feature) && s.equals(scenario)){
-                return true;
-            }
-        }
-        return false;
+        return steps;
     }
+
+    public void setSteps(List<Step> steps) {
+        this.steps = steps;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(String updateDate) {
+        this.updateDate = updateDate;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
 
     @Override
     public String toString() {
-        return "TestCase{" +
-                "feature='" + feature + '\'' +
-                ", scenario='" + scenario + '\'' +
+        return "Case{" +
+                "id=" + id +
+                ", description='" + description + '\'' +
+                ", steps=" + steps +
+                ", creationDate='" + creationDate + '\'' +
+                ", priority=" + priority +
+                ", tags=" + tags +
                 '}';
     }
 }
