@@ -16,6 +16,6 @@ public class TextFieldsBuilder extends AbstractFieldsBuilder {
 
     @Override
     public List<FieldSpec> buildField(SearchRule searchRule, String url) throws IOException {
-        return buildAbstractField(searchRule, url, Text.class, "text");
+        return buildAbstractField(searchRule, url, Text.class);
     }
 }

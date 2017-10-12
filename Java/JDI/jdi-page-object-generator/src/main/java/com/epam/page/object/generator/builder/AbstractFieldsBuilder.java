@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Modifier;
-
-import org.jsoup.nodes.Element;
 import org.openqa.selenium.support.FindBy;
 
 public abstract class AbstractFieldsBuilder implements IFieldsBuilder {
@@ -16,7 +14,7 @@ public abstract class AbstractFieldsBuilder implements IFieldsBuilder {
     private int abstractElementCounter;
 
     protected List<FieldSpec> buildAbstractField(SearchRule searchRule, String url,
-        Class abstractFieldClass, String abstractFieldName) throws IOException {
+        Class abstractFieldClass) throws IOException {
         List<FieldSpec> abstractFields = new ArrayList<>();
 
         List<String> elements = ("text").equals(searchRule.getRequiredAttribute())
@@ -73,7 +71,7 @@ public abstract class AbstractFieldsBuilder implements IFieldsBuilder {
     }
 
     private String getFieldName(String element) {
-        String fieldName = element.toString().replaceAll("[^A-Za-z0-9]", "");
+        String fieldName = element.replaceAll("[^A-Za-z0-9]", "");
         fieldName = fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1);
 
         return fieldName;

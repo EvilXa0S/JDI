@@ -16,7 +16,7 @@ public class CheckBoxFieldsBuilder extends AbstractFieldsBuilder {
 
     @Override
     public List<FieldSpec> buildField(SearchRule searchRule, String url) throws IOException {
-        return buildAbstractField(searchRule, url, CheckBox.class, "checkBox");
+        return buildAbstractField(searchRule, url, CheckBox.class);
     }
 
 }

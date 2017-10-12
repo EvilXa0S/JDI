@@ -61,8 +61,9 @@ public class PageObjectGenerator {
 		List<FieldSpec> siteClassFields = new ArrayList<>();
 
 		for (String url : urls) {
-			String pageClassName = getPageTitle(url);
-			String pageFieldName = getFieldName(url);
+			String pageTitle = getPageTitle(url);
+			String pageClassName = getPageClassName(pageTitle);
+			String pageFieldName = getPageFieldName(pageTitle);
 			ClassName pageClass = createPageClass(pageClassName, searchRules, url);
 
 			siteClassFields.add(FieldSpec.builder(pageClass, pageFieldName)
@@ -151,19 +152,22 @@ public class PageObjectGenerator {
 
 	private String getPageTitle(String url) throws IOException {
 		Document document = Jsoup.connect(url).get();
-		String title = document.title().replaceAll("[^A-Za-z0-9]", "");
-		title = title.substring(0, 1).toUpperCase() + title.substring(1);
 
-		return title;
+		return document.title();
 	}
 
-	private String getFieldName(String url) throws IOException {
-		Document document = Jsoup.connect(url).get();
+	private String getPageClassName(String title) {
+		String rawPageClassName = title.replaceAll("[^A-Za-z0-9]", "");
+		String pageClassName = rawPageClassName.substring(0, 1).toUpperCase() + rawPageClassName.substring(1) + "Page";
 
-		String title = document.title().replaceAll("[^A-Za-z0-9]", "");
-		title = title.substring(0, 1).toLowerCase() + title.substring(1);
+		return pageClassName;
+	}
 
-		return title;
+	private String getPageFieldName(String title) throws IOException {
+		String rawPageFieldName = getPageClassName(title);
+		String pageFieldName = rawPageFieldName.substring(0, 1).toLowerCase() + rawPageFieldName.substring(1);
+
+		return pageFieldName;
 	}
 
 }

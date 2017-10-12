@@ -16,7 +16,7 @@ public class ButtonFieldsBuilder extends AbstractFieldsBuilder {
 
 	@Override
 	public List<FieldSpec> buildField(SearchRule searchRule, String url) throws IOException {
-		return buildAbstractField(searchRule, url, Button.class, "button");
+		return buildAbstractField(searchRule, url, Button.class);
 	}
 
 }

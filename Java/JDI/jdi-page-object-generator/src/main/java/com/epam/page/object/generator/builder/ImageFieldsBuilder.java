@@ -16,7 +16,7 @@ public class ImageFieldsBuilder extends AbstractFieldsBuilder {
 
 	@Override
 	public List<FieldSpec> buildField(SearchRule searchRule, String url) throws IOException {
-		return buildAbstractField(searchRule, url, Image.class, "image");
+		return buildAbstractField(searchRule, url, Image.class);
 	}
 
 }
