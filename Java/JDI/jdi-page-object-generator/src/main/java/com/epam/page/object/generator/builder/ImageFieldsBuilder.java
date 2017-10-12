@@ -11,7 +11,7 @@ public class ImageFieldsBuilder extends AbstractFieldsBuilder {
 
 	@Override
 	public boolean canBuild(ElementType type) {
-		return type.equals(ElementType.IMAGE);
+		return (ElementType.IMAGE).equals(type);
 	}
 
 	@Override

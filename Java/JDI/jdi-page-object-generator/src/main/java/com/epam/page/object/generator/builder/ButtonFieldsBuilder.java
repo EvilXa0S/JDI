@@ -11,7 +11,7 @@ public class ButtonFieldsBuilder extends AbstractFieldsBuilder {
 
 	@Override
 	public boolean canBuild(ElementType type) {
-		return type.equals(ElementType.BUTTON);
+		return (ElementType.BUTTON).equals(type);
 	}
 
 	@Override
